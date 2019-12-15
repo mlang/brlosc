@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.13)
+project(BrlOSC)
+find_package(PkgConfig)
+pkg_check_modules(liblo REQUIRED IMPORTED_TARGET liblo)
+add_executable(BrlOSC BrlOSC.c)
+target_link_libraries(BrlOSC PkgConfig::liblo brlapi)
+install(TARGETS BrlOSC DESTINATION bin)
