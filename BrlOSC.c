@@ -87,7 +87,10 @@ int main(int argc, char *argv[])
 {
   oscTarget = lo_address_new(NULL, argc > 1? argv[1]: "57120");
   brlapi_connectionSettings_t brlapi = BRLAPI_SETTINGS_INITIALIZER;
-  int brl_fd = brlapi_openConnection(NULL, &brlapi);
+  if (argc > 3) {
+    brlapi.host = argv[3];
+  }
+  int brl_fd = brlapi_openConnection(&brlapi, &brlapi);
   if (brl_fd == -1) {
     fprintf(stderr, "Couldn't connect to BrlAPI at %s: %s\n",
             brlapi.host, brlapi_strerror(&brlapi_error));
@@ -131,12 +134,10 @@ int main(int argc, char *argv[])
             while (brlapi_readKey(0, &code) == 1) {
               brlapi_describedKeyCode_t description;
               brlapi_describeKeyCode(code, &description);
-              if (oscTarget != NULL) {
-                lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
-                             "/key", "ssi",
-                             description.type, description.command,
-                             description.argument);
-              }
+              lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
+                           "/key", "ssi",
+                           description.type, description.command,
+                           description.argument);
             }
           }
         }

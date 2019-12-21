@@ -1,16 +1,16 @@
 BrlOSC {
 	classvar ports;
-	var keyFunc, errFunc, pid, <tty, bridge, oscFuncs;
+	var keyFunc, errFunc, host, pid, <tty, bridge, oscFuncs;
 	*initClass {
 		ports = StackNumberAllocator.new(27500, 27599);
 	}
-	*new {| keyFunc, errFunc |
-		^super.newCopyArgs(keyFunc, errFunc).init;
+	*new {| keyFunc, errFunc, host |
+		^super.newCopyArgs(keyFunc, errFunc, host).init;
 	}
 	init {
 		bridge = NetAddr.new("127.0.0.1", ports.alloc);
 		pid = [
-			"BrlOSC", NetAddr.langPort.asString, bridge.port.asString
+			"BrlOSC", NetAddr.langPort.asString, bridge.port.asString, host ? ""
 		].unixCmd({
 			ports.free(bridge.port);
 			super.free;
