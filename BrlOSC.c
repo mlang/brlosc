@@ -98,6 +98,10 @@ int main(int argc, char *argv[])
   }
  
   oscServer = lo_server_new(argc > 2? argv[2]: "27500", error);
+
+  lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
+	       "/connected", NULL);
+
   lo_server_add_method(oscServer, "/enter", "i", enter_handler, NULL);
   lo_server_add_method(oscServer, "/write", "s", write_handler, NULL);
   lo_server_add_method(oscServer, "/write", "b", write_handler, NULL);
