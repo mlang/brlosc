@@ -26,6 +26,7 @@ BrlOSC {
 				keyFunc.value(msg[1], msg[2], msg[3], this);
 			}, '/key', bridge)
 		];
+		ShutDown.add(this)
 	}
 	enter {| tty |
 		bridge.sendMsg('/enter', tty ? -1)
@@ -37,6 +38,7 @@ BrlOSC {
 		bridge.sendMsg('/leave');
 		tty = nil;
 	}
+	doOnShutDown { this.free }
 	free {
 		oscFuncs.do(_.free);
 		bridge.sendMsg('/quit');
