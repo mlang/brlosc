@@ -11,22 +11,35 @@ lo_server oscServer = NULL;
 lo_address oscTarget = NULL;
 int done = 0;
 
-int enter_handler(const char *path, const char *types, lo_arg ** argv,
-                  int argc, lo_message msg, void *user_data)
+int grab_handler(const char *path, const char *types, lo_arg ** argv,
+		 int argc, lo_message msg, void *user_data)
 {
-  int tty = argv[0]->i;
+  if (argc == 1) {
+    int tty = argv[0]->i;
+    int retval;
+    retval = brlapi_enterTtyMode(tty, NULL);
+    if (retval != -1) {
+      lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
+		   "/tty", "i", retval);
+    } else {
+      lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
+		   "/error", "s", brlapi_strerror(&brlapi_error));
+      fprintf(stderr, "Error entering tty: %s\n",
+	      brlapi_strerror(&brlapi_error));
+    }
+    return 0;
+  }
   int retval;
-  retval = brlapi_enterTtyMode(tty, NULL);
+  retval = brlapi_enterTtyModeWithPath(NULL, 0, NULL);
   if (retval != -1) {
     lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
-                 "/tty", "i", retval);
+		 "/tty", "i", 0);
   } else {
     lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
-                 "/error", "s", brlapi_strerror(&brlapi_error));
+		 "/error", "s", brlapi_strerror(&brlapi_error));
     fprintf(stderr, "Error entering tty: %s\n",
-            brlapi_strerror(&brlapi_error));
+	    brlapi_strerror(&brlapi_error));
   }
-
   return 0;
 }
 
@@ -102,7 +115,8 @@ int main(int argc, char *argv[])
   lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
 	       "/connected", NULL);
 
-  lo_server_add_method(oscServer, "/enter", "i", enter_handler, NULL);
+  lo_server_add_method(oscServer, "/grab", "", grab_handler, NULL);
+  lo_server_add_method(oscServer, "/grab", "i", grab_handler, NULL);
   lo_server_add_method(oscServer, "/write", "s", write_handler, NULL);
   lo_server_add_method(oscServer, "/write", "b", write_handler, NULL);
   lo_server_add_method(oscServer, "/leave", "", leave_handler, NULL);

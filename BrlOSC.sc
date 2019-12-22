@@ -20,23 +20,28 @@ BrlOSC {
 			OSCFunc({|msg|
 				errFunc.value(msg[1], this)
 			}, '/error', bridge),
-			OSCFunc({ connected = true }, '/connected', bridge),
-			OSCFunc({|msg| tty = msg[1] }, '/tty', bridge),
+			OSCFunc({ this.changed(\connected, connected = true) }, '/connected', bridge),
+			OSCFunc({|msg| this.changed(\acquired, tty = msg[1]) }, '/tty', bridge),
 			OSCFunc({|msg|
 				keyFunc.value(msg[1], msg[2], msg[3], this);
 			}, '/key', bridge)
 		];
 		ShutDown.add(this)
 	}
-	enter {| tty |
-		if(connected, { bridge.sendMsg('/enter', tty ? -1) })
+	grab {|tty|
+		if(connected, {
+			if (tty.isNil, {
+				bridge.sendMsg('/grab')
+			}, {
+				bridge.sendMsg('/grab', tty.asInteger)
+			})
+		})
 	}
 	write {| what |
 		if (connected, { bridge.sendMsg('/write', what) })
 	}
-	leave {
+	release {
 		bridge.sendMsg('/leave');
-		tty = nil;
 	}
 	doOnShutDown { this.free }
 	free {
