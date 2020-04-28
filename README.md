@@ -36,11 +36,11 @@ In SuperCollider:
 
 ```sclang
 b=BrlOSC({|type, cmd, arg| [type, cmd, arg].postln}, {|err| err.postln});
-b.enter;
+b.grab;
 b.tty;
 b.write("Hello from SupoerCollider");
 // Pressing braille display keys will print them in the post buffer
-b.leave;
+b.release;
 b.tty;
 b.free;
 ```

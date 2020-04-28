@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(BrlOSC)
+project(BrlOSC VERSION 0.0.1 LANGUAGES C)
 find_package(PkgConfig)
 pkg_check_modules(liblo REQUIRED IMPORTED_TARGET liblo)
 add_executable(BrlOSC BrlOSC.c)

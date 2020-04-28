@@ -112,9 +112,6 @@ int main(int argc, char *argv[])
  
   oscServer = lo_server_new(argc > 2? argv[2]: "27500", error);
 
-  lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
-	       "/connected", NULL);
-
   lo_server_add_method(oscServer, "/grab", "", grab_handler, NULL);
   lo_server_add_method(oscServer, "/grab", "i", grab_handler, NULL);
   lo_server_add_method(oscServer, "/write", "s", write_handler, NULL);
@@ -128,6 +125,9 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Unable to get lo server socket fd\n");
     exit(1);
   }
+
+  lo_send_from(oscTarget, oscServer, LO_TT_IMMEDIATE,
+	       "/connected", NULL);
 
   struct pollfd fds[] = {
     { .fd = lo_fd, .events = POLLIN },
@@ -169,8 +169,4 @@ void error(int num, const char *msg, const char *path)
 {
   printf("liblo server error %d in path %s: %s\n", num, path, msg);
 }
-
-
-
-
 
